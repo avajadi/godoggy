@@ -24,7 +24,6 @@ public class TorrentFinder {
     }
 
     public List<Torrent> getTorrents( Episode episode ) throws IOException {
-        System.out.println( "torrent URL: " + buildURL( episode ) );
         Connection con = Jsoup.connect( buildURL( episode ) );
         for ( Map.Entry entry : config.rebase( "torrent.cookie" ).entrySet() ) {
             con = con.cookie( entry.getKey().toString(), entry.getValue().toString() );
@@ -46,17 +45,14 @@ public class TorrentFinder {
     }
 
     public Torrent selectTorrent( List<Torrent> torrents ) {
-        return torrents.stream().sorted( new Comparator<Torrent>() {
-            @Override
-            public int compare( Torrent o1, Torrent o2 ) {
-                if ( o2.getSeeders() == o1.getSeeders() ) {
-                    return 0;
-                }
-                if ( o2.getSeeders() > o1.getSeeders() ) {
-                    return 1;
-                }
-                return -1;
+        return torrents.stream().sorted( ( o1, o2 ) -> {
+            if ( o2.getSeeders() == o1.getSeeders() ) {
+                return 0;
             }
+            if ( o2.getSeeders() > o1.getSeeders() ) {
+                return 1;
+            }
+            return -1;
         } ).findFirst().get();
     }
 

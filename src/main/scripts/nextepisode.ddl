@@ -21,6 +21,8 @@ CREATE TABLE `Episode` (
   `season` int(5) NOT NULL,
   `number` int(5) NOT NULL,
   `airDate` date DEFAULT NULL,
+  `fetched` tinyint(1) NOT NULL DEFAULT '0',
+  `downloaded` float DEFAULT NULL,
   PRIMARY KEY (`series`,`season`,`number`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;

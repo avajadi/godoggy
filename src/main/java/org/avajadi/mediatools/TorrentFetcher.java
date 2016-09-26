@@ -40,7 +40,6 @@ public class TorrentFetcher {
     }
 
     public byte[] get( URL torrentURL ) throws IOException, KeyManagementException, NoSuchAlgorithmException {
-        System.out.println( "Getting torrent data from " + torrentURL.toString() );
         int CONNECTION_TIMEOUT = 80000;
         RequestConfig requestConfig = RequestConfig.custom().setCookieSpec( CookieSpecs.STANDARD )
                 .setConnectionRequestTimeout( CONNECTION_TIMEOUT )
@@ -60,7 +59,6 @@ public class TorrentFetcher {
             cookie.setPath( "/" );
             cookie.setExpiryDate( Date.from( Instant.now().plus( 10, ChronoUnit.DAYS ) ) );
             cookieStore.addCookie( cookie );
-            System.out.println( "Added cookie: " + cookie.toString() );
         }
 
         CloseableHttpClient httpclient = HttpClients.custom()
@@ -75,7 +73,6 @@ public class TorrentFetcher {
 
         HttpEntity entity = null;
         try {
-            System.out.println( response.getStatusLine() );
             entity = response.getEntity();
             return EntityUtils.toByteArray( entity );
         } finally {

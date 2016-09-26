@@ -1,9 +1,5 @@
 package org.avajadi.mediatools;
-import com.rometools.fetcher.FeedFetcher;
 import com.rometools.fetcher.FetcherException;
-import com.rometools.fetcher.impl.FeedFetcherCache;
-import com.rometools.fetcher.impl.HashMapFeedInfoCache;
-import com.rometools.fetcher.impl.HttpURLFeedFetcher;
 import com.rometools.rome.feed.synd.SyndEntry;
 import com.rometools.rome.feed.synd.SyndFeed;
 import com.rometools.rome.io.FeedException;
@@ -52,7 +48,6 @@ public class EpisodeIndexFetcher {
         InputStream stream = response.getEntity().getContent();
         SyndFeedInput input = new SyndFeedInput();
         SyndFeed feed = input.build( new XmlReader( stream ) );
-        System.out.println( feed.getTitle() );
 
         for ( SyndEntry entry : feed.getEntries() ) {
             try {
@@ -62,13 +57,11 @@ public class EpisodeIndexFetcher {
                 System.err.println( e.getMessage() );
             }
         }
-//        System.out.println(feed);
         return episodes;
     }
 
     private String buildURL() throws MalformedURLException {
         String urlString = config.getString( URL_TEMPLATE_KEY ).replace( USERNAME_PLACEHOLDER, config.getString( USER_KEY ) );
-        System.out.println( "Feed URL:" + urlString );
         return urlString;
     }
 }

@@ -26,14 +26,15 @@ public class GetTorrents extends ConfigurableExecutor {
         TorrentFinder torrentFinder = new TorrentFinder( config );
         TorrentFetcher tf = new TorrentFetcher( config );
         for( Episode episode : episodes ) {
-            System.out.println( "Downloading " + episode );
             Torrent torrent = torrentFinder.selectTorrent( episode );
             byte[] torrentData = tf.get( torrent.getURL() );
             File file = new File( config.getString(TORRENT_SPOOL_KEY), torrent.filename() );
             OutputStream out = new FileOutputStream( file );
             out.write( torrentData );
             out.close();
+            episodeDAO.markAsFetched( episode );
         }
+        episodeDAO.close();
     }
 
     public static void main( String[] args ) throws NoSuchAlgorithmException, IOException, KeyManagementException, SQLException, PersistanceException, ClassNotFoundException {

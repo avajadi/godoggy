@@ -27,11 +27,25 @@ public class EpisodeDAO {
 
     public void save( Episode episode ) {
         try {
-            PreparedStatement statement = connection.prepareStatement( "INSERT IGNORE INTO Episode( series, season, number, airDate ) VALUES (?,?,?,?)" );
+            PreparedStatement statement = connection.prepareStatement( "INSERT IGNORE INTO Episode( series, season, number, airDate, fetched, downloaded ) VALUES (?,?,?,?,?,?)" );
             statement.setString( 1, episode.getSeries() );
             statement.setInt( 2, episode.getSeason() );
             statement.setInt( 3, episode.getNumber() );
             statement.setDate( 4, Date.valueOf( episode.getAirDate() ) );
+            statement.setBoolean(5, episode.getFetched());
+            statement.setFloat( 6, episode.getDownloaded() );
+            statement.execute();
+        } catch ( SQLException e ) {
+            e.printStackTrace();
+        }
+    }
+
+    public void markAsFetched( Episode episode ) {
+        try {
+            PreparedStatement statement = connection.prepareStatement( "UPDATE Episode SET fetched=true WHERE series=? AND season=? AND number=?");
+            statement.setString( 1, episode.getSeries() );
+            statement.setInt( 2, episode.getSeason() );
+            statement.setInt( 3, episode.getNumber() );
             statement.execute();
         } catch ( SQLException e ) {
             e.printStackTrace();
@@ -39,10 +53,9 @@ public class EpisodeDAO {
     }
 
     public List<Episode> findTodaysEpisodes() throws PersistanceException {
-        Statement statement = null;
         try {
-            statement = connection.createStatement();
-            statement.execute( "SELECT * FROM Episode WHERE airDate=DATE(NOW())" );
+            Statement statement = connection.createStatement();
+            statement.execute( "SELECT * FROM Episode WHERE airDate<=DATE(NOW()) AND fetched=false" );
             ResultSet resultSet = statement.getResultSet();
             List<Episode> episodes = new ArrayList<>();
             while ( resultSet.next() ) {
@@ -58,20 +71,17 @@ public class EpisodeDAO {
     }
 
     private Episode buildEpisode( ResultSet resultSet ) throws SQLException {
-        return new Episode( resultSet.getInt( "season" ), resultSet.getInt( "number" ), resultSet.getDate( "airDate" ).toLocalDate(), resultSet.getString( "series" ) );
+        return new Episode( resultSet.getInt( "season" ), resultSet.getInt( "number" ), resultSet.getDate( "airDate" ).toLocalDate(), resultSet.getString( "series" ), resultSet.getBoolean("fetched"), resultSet.getFloat("downloaded") );
     }
 
     public void connect() throws ClassNotFoundException, SQLException {
-        System.out.println( "-------- MySQL JDBC Connection Testing ------------" );
 
         try {
             Class.forName( "com.mysql.jdbc.Driver" );
         } catch ( ClassNotFoundException e ) {
-            System.out.println( "Where is your MySQL JDBC Driver?" );
             throw (e);
         }
 
-        System.out.println( "MySQL JDBC Driver Registered!" );
         Connection connection;
 
         try {
@@ -79,14 +89,11 @@ public class EpisodeDAO {
                     .getConnection( buildJDBCURL(), config.getString( DATABASE_USER_KEY ), config.getString( DATABASE_PASSWORD_KEY ) );
 
         } catch ( SQLException e ) {
-            System.out.println( "Connection Failed! Check output console" );
             throw (e);
         }
 
         if ( connection != null ) {
-            System.out.println( "You made it, take control your database now!" );
         } else {
-            System.out.println( "Failed to make connection!" );
             throw (new SQLException( "Failed to make connection!" ));
         }
 
