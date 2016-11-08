@@ -27,6 +27,10 @@ public class GetTorrents extends ConfigurableExecutor {
         TorrentFetcher tf = new TorrentFetcher( config );
         for( Episode episode : episodes ) {
             Torrent torrent = torrentFinder.selectTorrent( episode );
+            if( torrent == null ) {
+                System.err.println( String.format( "Found no torrent for %s", episode.toString() ) );
+                continue;
+            }
             byte[] torrentData = tf.get( torrent.getURL() );
             File file = new File( config.getString(TORRENT_SPOOL_KEY), torrent.filename() );
             OutputStream out = new FileOutputStream( file );

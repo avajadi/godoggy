@@ -45,6 +45,8 @@ public class TorrentFinder {
     }
 
     public Torrent selectTorrent( List<Torrent> torrents ) {
+        if( torrents.isEmpty() ) return null;
+
         return torrents.stream().sorted( ( o1, o2 ) -> {
             if ( o2.getSeeders() == o1.getSeeders() ) {
                 return 0;
